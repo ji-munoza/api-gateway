@@ -11,7 +11,7 @@ spring:
         - id: ms_socio_route
           uri: lb://ms-socio
           predicates:
-            - Path=/api/gimnasio/socios/**
+            - Path=/api/gimnasio/socios/**, /api/gimnasio/socios/direcciones/**
 
         - id: ms_plan_route
           uri: lb://ms-plan
