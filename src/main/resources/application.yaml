@@ -1,0 +1,29 @@
+server:
+  port: 8090
+
+spring:
+  application:
+    name: api-gateway
+
+  cloud:
+    gateway:
+      routes:
+        - id: ms_socio_route
+          uri: lb://ms-socio
+          predicates:
+            - Path=/api/gimnasio/socios/**
+
+        - id: ms_plan_route
+          uri: lb://ms-plan
+          predicates:
+            - Path=/api/gimnasio/planes/**
+
+        - id: ms_inscripcion_route
+          uri: lb://ms-inscripcion
+          predicates:
+            - Path=/api/gimnasio/inscripciones/**
+
+eureka:
+  client:
+    service-url:
+      defaultZone: http://localhost:8761/eureka/
