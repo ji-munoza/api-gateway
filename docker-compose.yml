@@ -1,0 +1,102 @@
+version: '3.8'
+
+services:
+
+  eureka-server:
+    build: ./eureka-server
+    container_name: eureka_server_container
+    ports:
+      - "8761:8761"
+    networks:
+      - gimnasio-network
+
+  api-gateway:
+    build: ./api-gateway
+    container_name: api_gateway_container
+    ports:
+      - "8090:8090"
+    environment:
+      - EUREKA_CLIENT_SERVICE_URL_DEFAULTZONE=http://eureka-server:8761/eureka/
+    depends_on:
+      - eureka-server
+    networks:
+      - gimnasio-network
+
+  ms-evaluacion:
+    build: ./ms-evaluacion
+    container_name: ms_evaluacion_container
+    ports:
+      - "8085:8085"
+    environment:
+      - EUREKA_CLIENT_SERVICE_URL_DEFAULTZONE=http://eureka-server:8761/eureka/
+      - SPRING_DATASOURCE_URL=jdbc:mysql://host.docker.internal:3306/gimnasio_db?useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true
+      - SPRING_DATASOURCE_USERNAME=root
+      - SPRING_DATASOURCE_PASSWORD=
+    depends_on:
+      - eureka-server
+    networks:
+      - gimnasio-network
+
+  ms-inscripcion:
+    build: ./ms-inscripcion
+    container_name: ms_inscripcion_container
+    ports:
+      - "8083:8083"
+    environment:
+      - EUREKA_CLIENT_SERVICE_URL_DEFAULTZONE=http://eureka-server:8761/eureka/
+      - SPRING_DATASOURCE_URL=jdbc:mysql://host.docker.internal:3306/gimnasio_db?useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true
+      - SPRING_DATASOURCE_USERNAME=root
+      - SPRING_DATASOURCE_PASSWORD=
+    depends_on:
+      - eureka-server
+    networks:
+      - gimnasio-network
+
+  ms-pago:
+    build: ./ms-pago
+    container_name: ms_pago_container
+    ports:
+      - "8084:8084"
+    environment:
+      - EUREKA_CLIENT_SERVICE_URL_DEFAULTZONE=http://eureka-server:8761/eureka/
+      - SPRING_DATASOURCE_URL=jdbc:mysql://host.docker.internal:3306/gimnasio_db?useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true
+      - SPRING_DATASOURCE_USERNAME=root
+      - SPRING_DATASOURCE_PASSWORD=
+    depends_on:
+      - eureka-server
+    networks:
+      - gimnasio-network
+
+  ms-plan:
+    build: ./ms-plan
+    container_name: ms_plan_container
+    ports:
+      - "8082:8082"
+    environment:
+      - EUREKA_CLIENT_SERVICE_URL_DEFAULTZONE=http://eureka-server:8761/eureka/
+      - SPRING_DATASOURCE_URL=jdbc:mysql://host.docker.internal:3306/gimnasio_db?useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true
+      - SPRING_DATASOURCE_USERNAME=root
+      - SPRING_DATASOURCE_PASSWORD=
+    depends_on:
+      - eureka-server
+    networks:
+      - gimnasio-network
+
+  ms-socio:
+    build: ./ms-socio
+    container_name: ms_socio_container
+    ports:
+      - "8081:8081"
+    environment:
+      - EUREKA_CLIENT_SERVICE_URL_DEFAULTZONE=http://eureka-server:8761/eureka/
+      - SPRING_DATASOURCE_URL=jdbc:mysql://host.docker.internal:3306/gimnasio_db?useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true
+      - SPRING_DATASOURCE_USERNAME=root
+      - SPRING_DATASOURCE_PASSWORD=
+    depends_on:
+      - eureka-server
+    networks:
+      - gimnasio-network
+
+networks:
+  gimnasio-network:
+    driver: bridge
