@@ -7,7 +7,7 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.config.annotation.web.reactive.EnableWebFluxSecurity;
 import org.springframework.security.config.web.server.ServerHttpSecurity;
-import org.springframework.security.config.web.server.SecurityWebFiltersOrder; // 🌟 Clase correcta de Spring Boot 3.4
+import org.springframework.security.config.web.server.SecurityWebFiltersOrder;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.ReactiveSecurityContextHolder;
 import org.springframework.security.core.context.SecurityContextImpl;
@@ -37,7 +37,6 @@ public class SecurityConfig {
                         .pathMatchers("/api/gimnasio/evaluaciones/**").hasAnyAuthority("ROLE_ADMIN", "ROLE_ENTRENADOR")
                         .anyExchange().authenticated()
                 )
-                // 🛠️ Corregido usando el Enum exacto que requiere el compilador
                 .addFilterAt(jwtAuthenticationFilter(), SecurityWebFiltersOrder.AUTHENTICATION);
 
         return http.build();
