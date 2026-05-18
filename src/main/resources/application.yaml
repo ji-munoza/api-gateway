@@ -28,6 +28,11 @@ spring:
           predicates:
             - Path=/api/gimnasio/pagos/**
 
+        - id: ms_evaluacion_route
+          uri: lb://ms-evaluacion
+          predicates:
+            - Path=/api/gimnasio/evaluaciones/**
+
 eureka:
   client:
     service-url:
