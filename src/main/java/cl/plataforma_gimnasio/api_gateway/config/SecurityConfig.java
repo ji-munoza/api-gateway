@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.config.annotation.web.reactive.EnableWebFluxSecurity;
 import org.springframework.security.config.web.server.ServerHttpSecurity;
@@ -13,6 +14,7 @@ import org.springframework.security.core.context.ReactiveSecurityContextHolder;
 import org.springframework.security.core.context.SecurityContextImpl;
 import org.springframework.security.web.server.SecurityWebFilterChain;
 import org.springframework.security.web.server.context.NoOpServerSecurityContextRepository;
+import org.springframework.security.web.server.util.matcher.ServerWebExchangeMatchers;
 import org.springframework.web.server.WebFilter;
 import reactor.core.publisher.Mono;
 
@@ -27,10 +29,36 @@ public class SecurityConfig {
     private final JwtUtils jwtUtils;
 
     @Bean
-    public SecurityWebFilterChain springSecurityFilterChain(ServerHttpSecurity http) {
+    public SecurityWebFilterChain swaggerSecurityFilterChain(ServerHttpSecurity http) {
+        return http
+                .securityMatcher(ServerWebExchangeMatchers.pathMatchers(
+                        "/doc/swagger-ui.html",
+                        "/doc/swagger-ui/**",
+                        "/v3/api-docs/**",
+                        "/webjars/**",
+                        "/favicon.ico"
+                ))
+                .authorizeExchange(exchanges -> exchanges.anyExchange().permitAll())
+                .csrf(csrf -> csrf.disable())
+                .formLogin(form -> form.disable())
+                .httpBasic(basic -> basic.disable())
+                .build();
+    }
+
+    @Bean
+    public SecurityWebFilterChain apiSecurityFilterChain(ServerHttpSecurity http) {
         http
                 .csrf(csrf -> csrf.disable())
                 .securityContextRepository(NoOpServerSecurityContextRepository.getInstance())
+                .formLogin(form -> form.disable())
+                .httpBasic(basic -> basic.disable())
+
+                .exceptionHandling(exception -> exception
+                        .authenticationEntryPoint((exchange, e) -> {
+                            exchange.getResponse().setStatusCode(HttpStatus.UNAUTHORIZED);
+                            return exchange.getResponse().setComplete();
+                        })
+                )
                 .authorizeExchange(exchanges -> exchanges
                         .pathMatchers("/api/gimnasio/auth/**").permitAll()
                         .pathMatchers("/api/gimnasio/socios/**").hasAuthority("ROLE_ADMIN")
@@ -44,21 +72,19 @@ public class SecurityConfig {
 
     private WebFilter jwtAuthenticationFilter() {
         return (exchange, chain) -> {
-            String authHeader = exchange.getRequest().getHeaders().getFirst(HttpHeaders.AUTHORIZATION);
+            String path = exchange.getRequest().getURI().getPath();
 
-            System.out.println("========== DEBUG GATEWAY ==========");
-            System.out.println("Header recibido: " + authHeader);
+            if (path.contains("/doc") || path.contains("swagger") || path.contains("api-docs") || path.contains("/webjars")) {
+                return chain.filter(exchange);
+            }
+
+            String authHeader = exchange.getRequest().getHeaders().getFirst(HttpHeaders.AUTHORIZATION);
 
             if (authHeader != null && authHeader.startsWith("Bearer ")) {
                 String token = authHeader.substring(7);
-                boolean isValid = jwtUtils.validateToken(token);
-
-                System.out.println("¿Firma y fecha válidas?: " + isValid);
-
-                if (isValid) {
+                if (jwtUtils.validateToken(token)) {
                     String username = jwtUtils.extractUsername(token);
                     List<String> roles = jwtUtils.extractRoles(token);
-                    System.out.println("Usuario: " + username + " | Roles: " + roles);
 
                     List<SimpleGrantedAuthority> authorities = roles.stream()
                             .map(SimpleGrantedAuthority::new)
@@ -73,7 +99,6 @@ public class SecurityConfig {
                             .contextWrite(ReactiveSecurityContextHolder.withSecurityContext(Mono.just(context)));
                 }
             }
-
             return chain.filter(exchange);
         };
     }

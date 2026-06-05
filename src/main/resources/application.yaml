@@ -5,6 +5,7 @@ spring:
   application:
     name: api-gateway
 
+  # 🌟 CORREGIDO: cloud ahora está correctamente indentado dentro de spring
   cloud:
     gateway:
       routes:
@@ -32,6 +33,19 @@ spring:
           uri: lb://ms-evaluacion
           predicates:
             - Path=/api/gimnasio/evaluaciones/**
+
+        # 🌟 NUEVA RUTA CRUCIAL: Permite que Swagger UI consulte la documentación de los microservicios
+        - id: ms_openapi_route
+          uri: lb://ms-socio # Puedes apuntarlo a tu microservicio principal (ej: ms-socio)
+          predicates:
+            - Path=/v3/api-docs/**
+
+springdoc:
+  api-docs:
+    enabled: true
+  swagger-ui:
+    enabled: true
+    path: /doc/swagger-ui.html
 
 eureka:
   client:
