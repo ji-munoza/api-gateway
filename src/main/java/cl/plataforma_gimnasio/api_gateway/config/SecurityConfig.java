@@ -36,8 +36,10 @@ public class SecurityConfig {
                         "/doc/swagger-ui/**",
                         "/v3/api-docs/**",
                         "/webjars/**",
-                        "/favicon.ico"
+                        "/favicon.ico",
+                        "/v3/api-docs/**", "/swagger-ui/**", "/swagger-ui.html"
                 ))
+
                 .authorizeExchange(exchanges -> exchanges.anyExchange().permitAll())
                 .csrf(csrf -> csrf.disable())
                 .formLogin(form -> form.disable())

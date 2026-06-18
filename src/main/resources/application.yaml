@@ -46,6 +46,17 @@ springdoc:
   swagger-ui:
     enabled: true
     path: /doc/swagger-ui.html
+    urls:
+      - name: Microservicio Socio
+        url: /api/gimnasio/socios/v3/api-docs
+      - name: Microservicio Plan
+        url: /api/gimnasio/planes/v3/api-docs
+      - name: Microservicio Inscripcion
+        url: /api/gimnasio/inscripciones/v3/api-docs
+      - name: Microservicio Evaluacion
+        url: /api/gimnasio/evaluaciones/v3/api-docs
+      - name: Microservicio Pago
+        url: /api/gimnasio/pagos/v3/api-docs
 
 eureka:
   client:
