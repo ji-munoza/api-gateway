@@ -5,7 +5,6 @@ spring:
   application:
     name: api-gateway
 
-  # 🌟 CORREGIDO: cloud ahora está correctamente indentado dentro de spring
   cloud:
     gateway:
       routes:
@@ -34,11 +33,40 @@ spring:
           predicates:
             - Path=/api/gimnasio/evaluaciones/**
 
-        # 🌟 NUEVA RUTA CRUCIAL: Permite que Swagger UI consulte la documentación de los microservicios
-        - id: ms_openapi_route
-          uri: lb://ms-socio # Puedes apuntarlo a tu microservicio principal (ej: ms-socio)
+        - id: ms_socio_openapi
+          uri: lb://ms-socio
           predicates:
-            - Path=/v3/api-docs/**
+            - Path=/api/gimnasio/socios/v3/api-docs
+          filters:
+            - RewritePath=/api/gimnasio/socios/v3/api-docs, /v3/api-docs
+
+        - id: ms_plan_openapi
+          uri: lb://ms-plan
+          predicates:
+            - Path=/api/gimnasio/planes/v3/api-docs
+          filters:
+            - RewritePath=/api/gimnasio/planes/v3/api-docs, /v3/api-docs
+
+        - id: ms_inscripcion_openapi
+          uri: lb://ms-inscripcion
+          predicates:
+            - Path=/api/gimnasio/inscripciones/v3/api-docs
+          filters:
+            - RewritePath=/api/gimnasio/inscripciones/v3/api-docs, /v3/api-docs
+
+        - id: ms_pago_openapi
+          uri: lb://ms-pago
+          predicates:
+            - Path=/api/gimnasio/pagos/v3/api-docs
+          filters:
+            - RewritePath=/api/gimnasio/pagos/v3/api-docs, /v3/api-docs
+
+        - id: ms_evaluacion_openapi
+          uri: lb://ms-evaluacion
+          predicates:
+            - Path=/api/gimnasio/evaluaciones/v3/api-docs
+          filters:
+            - RewritePath=/api/gimnasio/evaluaciones/v3/api-docs, /v3/api-docs
 
 springdoc:
   api-docs:
@@ -46,6 +74,8 @@ springdoc:
   swagger-ui:
     enabled: true
     path: /doc/swagger-ui.html
+
+    use-root-path: true
     urls:
       - name: Microservicio Socio
         url: /api/gimnasio/socios/v3/api-docs
